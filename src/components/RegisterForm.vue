@@ -186,6 +186,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'LoginForm',
   data() {
@@ -209,15 +210,24 @@ export default {
     };
   },
   methods: {
-    register(values) {
+    async register(values) {
       this.registration_show_alert = true;
       this.registration_in_submission = true;
       this.registration_alert_variant = 'bg-blue-500';
       this.registration_alert_msg = 'Please wait! Your account is being created.';
 
+      try {
+        await this.$store.dispatch('register', values);
+      } catch (error) {
+        this.registration_in_submission = false;
+        this.registration_alert_variant = 'bg-red-500';
+        this.registration_alert_msg = 'An unexpected error occured. Please try againe later.';
+        return;
+      }
+
       this.registration_alert_variant = 'bg-green-500';
       this.registration_alert_msg = 'Success! Your account has been created.';
-      console.log(values);
+      window.location.reload();
     },
   },
 };
