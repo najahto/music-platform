@@ -13,7 +13,8 @@
           <div class="p-6">
             <!-- Composition Items -->
             <composition-item v-for="(song,index) in songs" :key="song.documentId" :song="song"
-            :updateSong="updateSong" :index="index" :removeSong="removeSong"/>
+            :updateSong="updateSong" :index="index" :removeSong="removeSong"
+            :updateUnsavedFlag="updateUnsavedFlag"/>
           </div>
         </div>
       </div>
@@ -36,6 +37,7 @@ export default {
   data() {
     return {
       songs: [],
+      unsavedFlag: false,
     };
   },
   async created() {
@@ -44,8 +46,18 @@ export default {
     snapshot.forEach(this.addSong);
   },
   beforeRouteLeave(to, from, next) {
-    this.$refs.upload.cancelUploads();
-    next();
+    // cancel uploas
+    if (this.$refs.upload.cancelUploads()) {
+      next();
+    }
+    // check if the user has unsaved changes
+    if (!this.unsavedFlag) {
+      next();
+    } else {
+      // eslint-disable-next-line no-alert, no-restricted-globals
+      const leave = confirm('You have unsaved changes. Are you sure that you want to leave?');
+      next(leave);
+    }
   },
   methods: {
     updateSong(index, values) {
@@ -62,6 +74,11 @@ export default {
       };
       this.songs.push(song);
     },
+    updateUnsavedFlag(value) {
+      this.unsavedFlag = value;
+    }, // beforeRouteLeave(to, from, next) {
+
+  // },
   },
 
 //   beforeRouteEnter(to, from, next) {
